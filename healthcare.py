@@ -10,6 +10,7 @@ from kivy.clock import Clock
 from kivy.core.text import LabelBase
 from kivymd.uix.label import MDLabel
 from kivy.uix.button import Button
+from kivy.uix.image import Image
 from kivy.properties import StringProperty, NumericProperty
 import webbrowser
 
@@ -36,7 +37,7 @@ ScreenManager:
             size: self.width, self.height
             pos: self.pos
             radius: [23, 23, 0, 23]
-<Respond>
+<Response>
     size_hint_y : None
     pos_hint: {"x": .02}
     height: self.texture_size[1]
@@ -47,7 +48,33 @@ ScreenManager:
         RoundedRectangle:
             size: self.width, self.height
             pos: self.pos
-            radius: [23, 23, 23, 0]          
+            radius: [23, 23, 23, 0]  
+<RespondImage>
+    size_hint_x: .7
+    size_hint_y: None
+    height: 200
+    allow_stretch: True
+    pos_hint: {"x": .02}
+    canvas.before:
+        Color:
+            rgb: (1, 1, 1, 1)
+        RoundedRectangle:
+            size: self.width, self.height
+            pos: self.pos
+            radius: [23, 23, 23, 0]
+<RespondButton>
+    size_hint_x: .7
+    size_hint_y: None
+    height: 200
+    allow_stretch: True
+    pos_hint: {"x": .02}
+    canvas.before:
+        Color:
+            rgb: (1, 1, 1, 1)
+        RoundedRectangle:
+            size: self.width, self.height
+            pos: self.pos
+            radius: [23, 23, 23, 0]
 <WelcomeScreen>:
     name:'welcomescreen'
     MDFloatLayout:
@@ -299,6 +326,14 @@ ScreenManager:
             md_bg_color: 245/255, 245/255, 245/255, 1
             size_hint_y: .11
             pos_hint: {"center_y": .95}
+            MDIconButton:
+                icon: "logout"
+                pos_hint: {"center_y": .65}
+                user_font_size: "30sp"
+                theme_text_color: "Custom"
+                text_color: rgba(26, 24, 58, 255)
+                on_release:
+                    app.root.current = "welcomescreen"
             MDLabel:
                 id:bot_name
                 text: ""
@@ -388,12 +423,20 @@ class Command(MDLabel):
     halign = StringProperty()
     #font_name = "Poppins"
     font_size = 17
-class Respond(MDLabel):
+class Response(MDLabel):
     text = StringProperty()
     size_hint_x = NumericProperty()
     halign = StringProperty()
     #font_name = "Poppins"
     font_size = 17
+class RespondImage(Image):
+    source = StringProperty()
+
+
+
+
+
+
 sm = ScreenManager()
 sm.add_widget(WelcomeScreen(name='loginscreen'))
 sm.add_widget(MainScreen(name='mainscreen'))
@@ -492,12 +535,43 @@ class HealthApp(MDApp):
         response = ""
 
         if value == "Hello" or value == 'hello':
-            response = f"Hello, I am Your Personal Assistant {self.strng.get_screen('chatscreen').bot_name.text}."
-        elif value == "How are you?" or "how are you" or "how are you?":
-            response = "fine"
+            response = f"Hello, I am Your Health Care Assistant. How May i help you?  {self.strng.get_screen('chatscreen').bot_name.text}."
+        elif value == "i need appoinment?" or value == "i need appoinment" or value == "how are you?":
+            response = "May i know which doctor?, What are you suffering from? "
+            #response = "What are you suffering from?"
+        elif value == "skin" or value == " suffering from skin" :
+            response = "For this Problem we have Dr Fizza and Dr Tabish both of them are skin specialist"
+
+        elif value == "Which doctor is available tomorrow" or value == " tomorrow which one is available" :
+            response = "Dr fizza is available tomorrow from 6 to 9 pm"
+
+        elif value == "make appoinment" or value == " please proceed the appoinment" :
+            response = """Sure Please wait 
+                       your number for Dr fizza for tomorrow is 6 which will come between 6:30 -7:00 pm please be there on time
+                       
+                       Also please give me your contact number so we can enter your details in our hospital system
+                       """
+
+        elif value == "ok 03414279535" or value == "ok sure":
+            response = "Received.your total amount is Rm100, i want to know you pay at counter or oniline transfer. 0= Online Transfer, 9=Pay at counter"
+        elif value == "0" or value == "":
+            response = "This QR for online bank transfer. just send me reciept"
+            self.strng.get_screen('chatscreen').chat_list.add_widget(RespondImage(source="qr-code-bc94057f452f4806af70fd34540f72ad.png"))
+        elif value == "Thankyou" or value == " thanks":
+            response = """My Pleasure, If you satisfied 
+                         Press 1 OR not satisfied Press 2"""
+
+
+
+        elif value == "1" or value == "images":
+            self.strng.get_screen('chatscreen').chat_list.add_widget(RespondImage(source="thanks.gif"))
+
+        elif value == "2" or value == "images":
+            self.strng.get_screen('chatscreen').chat_list.add_widget(RespondImage(source="sorry.gif"))
+
         else:
             response = "Sorry, could you say that again"
-        self.strng.get_screen('chatscreen').chat_list.add_widget(Respond(text=response, size_hint_x=.75))
+        self.strng.get_screen('chatscreen').chat_list.add_widget(Response(text=response, size_hint_x=.75))
 
 
 
@@ -519,6 +593,15 @@ class HealthApp(MDApp):
             elif len(value) < 21:
                 size = .58
                 halign = "center"
+            elif len(value) < 11:
+                size = .32
+                halign = "center"
+            elif len(value) < 26:
+                size = .71
+                halign = "center"
+            else:
+                size = .77
+                halign = "left"
             self.strng.get_screen('chatscreen').chat_list.add_widget(Command(text=value, size_hint_x= size, halign=halign))
             Clock.schedule_once(self.reponse, 2)
             self.strng.get_screen("chatscreen").patient_name1.text = ""
